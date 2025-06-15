@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#7877c6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>FC Wolves - فريق الذئاب</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Arabic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, onValue, push, update, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+        import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzBbcMUHBs_pc1mbfwobGW7KJgyDKmQIE",
+            authDomain: "mj36-7e65e.firebaseapp.com",
+            databaseURL: "https://mj36-7e65e-default-rtdb.firebaseio.com",
+            projectId: "mj36-7e65e",
+            storageBucket: "mj36-7e65e.firebasestorage.app",
+            messagingSenderId: "64103654826",
+            appId: "1:64103654826:web:c7dcd0e9af6466e67137d3"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const storage = getStorage(app);
+        
+        // Make Firebase available globally
+        window.firebase = {
+            app,
+            database,
+            storage,
+            ref,
+            set,
+            get,
+            onValue,
+            push,
+            update,
+            remove,
+            storageRef,
+            uploadBytes,
+            getDownloadURL,
+            deleteObject
+        };
+
+        // Initialize messaging if supported
+        if ('serviceWorker' in navigator && 'Notification' in window) {
+            try {
+                const messaging = getMessaging(app);
+                window.firebase.messaging = messaging;
+                window.firebase.getToken = getToken;
+                window.firebase.onMessage = onMessage;
+            } catch (error) {
+                console.log('Messaging not supported:', error);
+            }
+        }
+
+        // Notify when Firebase is ready
+        window.dispatchEvent(new Event('firebaseReady'));
+    </script>
+
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-color: #7877c6;
+            --secondary-color: #ff7730;
+            --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #2d2d2d;
+            --text-secondary: #666;
+            --success-color: #2ed573;
+            --error-color: #ff6b6b;
+            --warning-color: #ffa726;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --border-radius: 20px;
+            --font-arabic: 'Tajawal', 'Cairo', sans-serif;
+            --font-english: 'Roboto', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-arabic);
+            line-height: 1.6;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            background: var(--background-gradient);
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        /* Section Management */
+        .section {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Login Section */
+        .login-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: var(--background-gradient);
+        }
+
+        .login-container {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.8s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-section {
+            margin-bottom: 2rem;
+        }
+
+        .wolf-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .team-name-en {
+            font-family: var(--font-english);
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .team-name-ar {
+            font-family: var(--font-arabic);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .tagline {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .login-form {
+            margin: 2rem 0;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-family: var(--font-arabic);
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            text-align: center;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(120, 119, 198, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: var(--font-arabic);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(120, 119, 198, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-message.show {
+            opacity: 1;
+        }
+
+        .footer-info {
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo .wolf-icon {
+            font-size: 2rem;
+            animation: none;
+        }
+
+        .logo .team-name-en {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .logo .team-name-ar {
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(120, 119, 198, 0.1);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, var(--error-color) 0%, #ff8e53 100%);
+            color: white !important;
+            padding: 0.7rem 1.5rem !important;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-content h2 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-text {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .content-grid {
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        /* Players Grid for 6-player team */
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .player-card {
+            background: linear-gradient(135deg, rgba(120, 119, 198, 0.1) 0%, rgba(255, 119, 48, 0.1) 100%);
+            padding: 1rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-card:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(120, 119, 198, 0.2);
+        }
+
+        .player-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 0.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            overflow: hidden;
+        }
+
+        .player-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .player-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .player-position {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* 6-Player Field Formation */
+        .field-container {
+            position: relative;
+            background: linear-gradient(to bottom, #4CAF50 0%, #45a049 100%);
+            border-radius: 15px;
+            padding: 2rem 1rem;
+            margin: 1rem 0;
+            min-height: 300px;
+            overflow: hidden;
+        }
+
+        .field-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px solid white;
+            border-radius: 15px;
+        }
+
+        .field-lines::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: white;
+            transform: translateY(-50%);
+        }
+
+        .field-lines::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            border: 2px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .formation-display {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .formation-line {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .formation-player {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .formation-player:hover {
+            transform: scale(1.1);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Match Info */
+        .match-info {
+            text-align: center;
+        }
+
+        .teams {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .team-logo {
+            font-size: 2rem;
+        }
+
+        .team-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .vs {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0 1rem;
+        }
+
+        .match-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .match-date, .match-time, .match-venue {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .countdown-item {
+            text-align: center;
+            background: rgba(120, 119, 198, 0.1);
+            padding: 1rem;
+            border-radius: 15px;
+            min-width: 70px;
+        }
+
+        .countdown-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .countdown-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Admin Panel Styles */
+        .admin-section {
+            background: var(--background-gradient);
+            min-height: 100vh;
+        }
+
+        .admin-hero {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: white;
+        }
+
+        .admin-hero h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .admin-hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem auto;
+            max-width: 800px;
+            padding: 0 1rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .admin-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .admin-content {
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            }
+        }
+
+        .admin-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: var(--font-arabic);
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(120, 119, 198, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-family: var(--font-arabic);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(120, 119, 198, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error-color) 0%, #c0392b 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #27ae60 100%);
+        }
+
+        /* File Upload Styles */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.8rem;
+            border: 2px dashed var(--primary-color);
+            border-radius: 10px;
+            background: rgba(120, 119, 198, 0.05);
+            color: var(--primary-color);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover .file-upload-label {
+            background: rgba(120, 119, 198, 0.1);
+            border-color: var(--secondary-color);
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            animation: slideInRight 0.3s ease;
+            max-width: 300px;
+            font-weight: 500;
+        }
+
+        .notification.error {
+            background: var(--error-color);
+        }
+
+        .notification.warning {
+            background: var(--warning-color);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .hero-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .team-name-en {
+                font-size: 2rem;
+            }
+
+            .teams {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .vs {
+                order: 2;
+                margin: 0;
+            }
+
+            .countdown {
+                gap: 0.5rem;
+            }
+
+            .countdown-item {
+                min-width: 60px;
+                padding: 0.8rem 0.5rem;
+            }
+
+            .formation-player {
+                width: 35px;
+                height: 35px;
+                font-size: 0.7rem;
+            }
+
+            .field-container {
+                min-height: 250px;
+                padding: 1.5rem 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .login-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .player-image {
+                width: 50px;
+                height: 50px;
+            }
+
+            .notification {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --card-bg: rgba(45, 45, 45, 0.95);
+                --text-primary: #ffffff;
+                --text-secondary: #cccccc;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .header, .nav, .logout-btn {
+                display: none;
+            }
+            
+            .section {
+                display: block !important;
+            }
+        }
+
+        /* Accessibility improvements */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus styles for keyboard navigation */
+        .nav-link:focus,
+        .btn:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="section login-section active">
+        <div class="login-container">
+            <div class="logo-section">
+                <div class="wolf-icon">🐺</div>
+                <h1 class="team-name-en">FC WOLVES</h1>
+                <h2 class="team-name-ar">فريق الذئاب</h2>
+                <p class="tagline">ادخل إلى القطيع</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="input-group">
+                    <input type="password" id="accessCode" placeholder="أدخل رمز الدخول" required>
+                </div>
+                
+                <button onclick="checkAccessCode()" class="login-btn">
+                    <span>دخول</span>
+                </button>
+                
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+            
+            <div class="footer-info">
+                <p>للأشخاص المخولين فقط</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Section -->
+    <div id="playerSection" class="section">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="wolf-icon">🐺</span>
+                    <div>
+                        <h1 class="team-name-en">FC WOLVES</h1>
+                        <h2 class="team-name-ar">فريق الذئاب</h2>
+                    </div>
+                </div>
+                <nav class="nav">
+                    <a href="#players" class="nav-link">اللاعبون</a>
+                    <a href="#lineup" class="nav-link">التشكيلة</a>
+                    <a href="#match" class="nav-link">المباراة القادمة</a>
+                    <a href="#results" class="nav-link">النتائج</a>
+                    <a href="#" onclick="logout()" class="logout-btn">خروج</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="hero-section">
+                <div class="hero-content">
+                    <h2>مرحباً بك في القطيع! 🐺</h2>
+                    <p>ابق على اطلاع بآخر أخبار فريقك المفضل</p>
+                    <div class="status-indicator" id="teamStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-text">تدريب اليوم</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="content-grid">
+                <section id="players" class="card">
+                    <h3><span class="icon">👥</span> تشكيلة الفريق</h3>
+                    <div class="players-grid" id="playersGrid">
+                        <!-- Players will be loaded dynamically -->
+                    </div>
+                </section>
+
+                <section id="lineup" class="card">
+                    <h3><span class="icon">⚽</span> التشكيلة الأساسية</h3>
+                    <div class="formation-title">التشكيلة: 2-2-1</div>
+                    <div class="field-container">
+                        <div class="field-lines"></div>
+                        <div class="formation-display" id="formationDisplay">
+                            <!-- Formation will be loaded dynamically -->
+                        </div>
+                    </div>
+                </section>
+
+                <section id="match" class="card">
+                    <h3><span class="icon">📅</span> المباراة القادمة</h3>
+                    <div class="match-info">
+                        <div class="teams">
+                            <div class="team">
+                                <span class="team-name">FC Wolves</span>
+                                <span class="team-logo">🐺</span>
+                            </div>
+                            <div class="vs">ضد</div>
+                            <div class="team">
+                                <span class="team-logo">🦅</span>
+                                <span class="team-name" id="opponentName">Eagles FC</span>
+                            </div>
+                        </div>
+                        <div class="match-details">
+                            <div class="match-date" id="matchDate">الأحد، 16 يونيو 2025</div>
+                            <div class="match-time" id="matchTime">15:00</div>
+                            <div class="match-venue" id="matchVenue">ملعب الذئاب</div>
+                        </div>
+                        <div class="countdown" id="countdown">
+                            <div class="countdown-item">
+                                <span class="countdown-number" id="days">2</span>
+                                <span class="countdown-label">أيام</span>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-number" id="hours">12</span>
+                                <span class="countdown-label">ساعات</span>
+                            </div>
+                            <div class="countdown-item">
+                                <span class="countdown-number" id="minutes">30</span>
+                                <span class="countdown-label">دقائق</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="results" class="card">
+                    <h3><span class="icon">🏆</span> النتائج السابقة</h3>
+                    <div id="resultsGrid">
+                        <!-- Results will be loaded dynamically -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Coach Section -->
+    <div id="coachSection" class="section admin-section">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="wolf-icon">🐺</span>
+                    <div>
+                        <h1 class="team-name-en">FC WOLVES</h1>
+                        <h2 class="team-name-ar">لوحة تحكم المدرب</h2>
+                    </div>
+                </div>
+                <nav class="nav">
+                    <a href="#" onclick="showSection('playerSection')" class="nav-link">واجهة اللاعبين</a>
+                    <a href="#" onclick="logout()" class="logout-btn">خروج</a>
+                </nav>
+            </div>
+        </header>
+
+        <div class="admin-hero">
+            <h2>لوحة تحكم المدرب ⚙️</h2>
+            <p>إدارة فريقك بكفاءة</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number" id="totalPlayers">6</span>
+                <span class="stat-label">إجمالي اللاعبين</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="activeLineup">6</span>
+                <span class="stat-label">التشكيلة النشطة</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="nextMatchDays">2</span>
+                <span class="stat-label">أيام للمباراة</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="totalMatches">0</span>
+                <span class="stat-label">المباريات المسجلة</span>
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <div class="admin-card">
+                <h3><span class="icon">👥</span> إدارة اللاعبين</h3>
+                <form id="addPlayerForm">
+                    <div class="form-group">
+                        <label>رقم القميص</label>
+                        <input type="number" id="playerNumber" required min="1" max="99">
+                    </div>
+                    <div class="form-group">
+                        <label>اسم اللاعب</label>
+                        <input type="text" id="playerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>المركز</label>
+                        <select id="playerPosition" required>
+                            <option value="">اختر المركز</option>
+                            <option value="حارس مرمى">حارس مرمى</option>
+                            <option value="مدافع">مدافع</option>
+                            <option value="لاعب وسط">لاعب وسط</option>
+                            <option value="مهاجم">مهاجم</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>صورة اللاعب</label>
+                        <div class="file-upload">
+                            <input type="file" id="playerImage" accept="image/*" capture="camera">
+                            <div class="file-upload-label">
+                                <span>📷</span>
+                                <span>اختر صورة أو التقط صورة</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">إضافة لاعب</button>
+                </form>
+
+                <div style="margin-top: 2rem;">
+                    <h4>اللاعبون الحاليون</h4>
+                    <div id="playersTable" style="max-height: 300px; overflow-y: auto;">
+                        <!-- Players table will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <h3><span class="icon">⚽</span> إدارة التشكيلة</h3>
+                <div class="form-group">
+                    <label>التشكيلة:</label>
+                    <select id="formationSelect" onchange="changeFormation()">
+                        <option value="2-2-1">2-2-1 (دفاعية)</option>
+                        <option value="2-1-2">2-1-2 (متوازنة)</option>
+                        <option value="1-3-1">1-3-1 (وسط قوي)</option>
+                        <option value="1-2-2">1-2-2 (هجومية)</option>
+                    </select>
+                </div>
+                <div class="field-container">
+                    <div class="field-lines"></div>
+                    <div class="formation-display" id="coachFormationDisplay">
+                        <!-- Formation builder will be generated here -->
+                    </div>
+                </div>
+                <button onclick="saveLineup()" class="btn">حفظ التشكيلة</button>
+                <button onclick="resetLineup()" class="btn btn-secondary">إعادة تعيين</button>
+            </div>
+
+            <div class="admin-card">
+                <h3><span class="icon">📅</span> إدارة المباريات</h3>
+                <form id="scheduleForm">
+                    <div class="form-group">
+                        <label>الفريق المنافس</label>
+                        <input type="text" id="opponent" required>
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ المباراة</label>
+                        <input type="date" id="matchDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>وقت المباراة</label>
+                        <input type="time" id="matchTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الملعب</label>
+                        <input type="text" id="venue" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نوع المباراة</label>
+                        <select id="isHome">
+                            <option value="true">على أرضنا</option>
+                            <option value="false">خارج الأرض</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">تحديث الجدول</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h3><span class="icon">🏆</span> تسجيل النتائج</h3>
+                <form id="resultForm">
+                    <div class="form-group">
+                        <label>الفريق المنافس</label>
+                        <input type="text" id="resultOpponent" required>
+                    </div>
+                    <div class="form-group">
+                        <label>نتيجة فريقنا</label>
+                        <input type="number" id="ourScore" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>نتيجة الفريق المنافس</label>
+                        <input type="number" id="opponentScore" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>تاريخ المباراة</label>
+                        <input type="date" id="resultDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ملاحظات</label>
+                        <textarea id="resultNotes" rows="3" placeholder="ملاحظات عن المباراة (اختياري)"></textarea>
+                    </div>
+                    <button type="submit" class="btn">تسجيل النتيجة</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h3><span class="icon">📊</span> حالة الفريق</h3>
+                <div class="form-group">
+                    <label>الحالة الحالية</label>
+                    <select id="teamStatusSelect" onchange="updateTeamStatus()">
+                        <option value="training">تدريب</option>
+                        <option value="match">يوم المباراة</option>
+                        <option value="rest">يوم راحة</option>
+                        <option value="travel">سفر</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>رسالة الحالة</label>
+                    <input type="text" id="statusMessage" placeholder="رسالة مخصصة للحالة">
+                </div>
+                <button onclick="saveTeamStatus()" class="btn">تحديث الحالة</button>
+                
+                <div style="margin-top: 1rem;">
+                    <h4>الحالة الحالية للفريق:</h4>
+                    <div class="status-indicator">
+                        <span class="status-dot" id="currentStatusDot"></span>
+                        <span class="status-text" id="currentStatusText">تدريب اليوم</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <h3><span class="icon">🔔</span> إرسال الإشعارات</h3>
+                <div class="form-group">
+                    <label>عنوان الإشعار</label>
+                    <input type="text" id="notificationTitle" placeholder="مثال: مباراة مهمة غداً">
+                </div>
+                <div class="form-group">
+                    <label>نص الإشعار</label>
+                    <textarea id="notificationMessage" rows="3" placeholder="مثال: لا تنسوا المباراة غداً في الساعة 3 عصراً"></textarea>
+                </div>
+                <button onclick="sendNotification()" class="btn btn-success">إرسال إشعار</button>
+                <button onclick="requestNotificationPermission()" class="btn btn-secondary">تفعيل الإشعارات</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'loginSection';
+        let currentUser = null;
+        let firebaseReady = false;
+        let teamData = null;
+
+        // Wait for Firebase to be ready
+        window.addEventListener('firebaseReady', function() {
+            firebaseReady = true;
+            console.log('Firebase initialized successfully');
+            initializeApp();
+        });
+
+        // Initialize the application
+        function initializeApp() {
+            if (!firebaseReady) {
+                setTimeout(initializeApp, 100);
+                return;
+            }
+            
+            loadTeamData();
+            setupEventListeners();
+            requestNotificationPermission();
+        }
+
+        // Firebase Data Management
+        async function loadTeamData() {
+            try {
+                const snapshot = await window.firebase.get(window.firebase.ref(window.firebase.database, 'fcwolves'));
+                if (snapshot.exists()) {
+                    teamData = snapshot.val();
+                } else {
+                    // Initialize with default data for 6-player team
+                    teamData = getDefaultTeamData();
+                    await saveTeamData();
+                }
+                
+                if (currentSection === 'playerSection') {
+                    updatePlayerInterface();
+                } else if (currentSection === 'coachSection') {
+                    updateCoachInterface();
+                }
+            } catch (error) {
+                console.error('Error loading team data:', error);
+                showNotification('خطأ في تحميل البيانات', 'error');
+            }
+        }
+
+        function getDefaultTeamData() {
+            return {
+                players: [
+                    { number: 1, name: "أحمد محمد", position: "حارس مرمى", image: "" },
+                    { number: 2, name: "محمد علي", position: "مدافع", image: "" },
+                    { number: 3, name: "علي أحمد", position: "مدافع", image: "" },
+                    { number: 4, name: "خالد محمود", position: "لاعب وسط", image: "" },
+                    { number: 5, name: "عمر حسن", position: "لاعب وسط", image: "" },
+                    { number: 6, name: "يوسف إبراهيم", position: "مهاجم", image: "" }
+                ],
+                lineup: [
+                    { number: 1, name: "أحمد محمد", position: "GK" },
+                    { number: 2, name: "محمد علي", position: "DEF" },
+                    { number: 3, name: "علي أحمد", position: "DEF" },
+                    { number: 4, name: "خالد محمود", position: "MID" },
+                    { number: 5, name: "عمر حسن", position: "MID" },
+                    { number: 6, name: "يوسف إبراهيم", position: "FWD" }
+                ],
+                nextMatch: {
+                    opponent: "Eagles FC",
+                    date: "2025-06-16",
+                    time: "15:00",
+                    venue: "ملعب الذئاب",
+                    isHome: true
+                },
+                status: {
+                    type: "training",
+                    message: "تدريب اليوم"
+                },
+                formation: "2-2-1",
+                results: []
+            };
+        }
+
+        async function saveTeamData() {
+            try {
+                await window.firebase.set(window.firebase.ref(window.firebase.database, 'fcwolves'), teamData);
+                console.log('Team data saved successfully');
+            } catch (error) {
+                console.error('Error saving team data:', error);
+                showNotification('خطأ في حفظ البيانات', 'error');
+            }
+        }
+
+        // Authentication
+        function checkAccessCode() {
+            const code = document.getElementById('accessCode').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (code === 'nmoi557') {
+                currentUser = 'player';
+                showSection('playerSection');
+                playSuccessSound();
+            } else if (code === '0011JMFC') {
+                currentUser = 'coach';
+                showSection('coachSection');
+                playSuccessSound();
+            } else {
+                errorMessage.textContent = 'رمز دخول غير صحيح. يرجى المحاولة مرة أخرى.';
+                errorMessage.classList.add('show');
+                playErrorSound();
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 3000);
+            }
+            
+            document.getElementById('accessCode').value = '';
+        }
+
+        function logout() {
+            currentUser = null;
+            showSection('loginSection');
+            playClickSound();
+        }
+
+        // Section Management
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+            currentSection = sectionId;
+            
+            // Initialize section-specific functionality
+            if (sectionId === 'playerSection') {
+                updatePlayerInterface();
+            } else if (sectionId === 'coachSection') {
+                updateCoachInterface();
+            }
+            
+            playClickSound();
+        }
+
+        // Player Interface Functions
+        function updatePlayerInterface() {
+            if (!teamData) return;
+            
+            loadPlayers();
+            loadLineup();
+            loadMatchInfo();
+            loadResults();
+            updateTeamStatusDisplay();
+            startCountdown();
+        }
+
+        function loadPlayers() {
+            const playersGrid = document.getElementById('playersGrid');
+            if (!playersGrid || !teamData) return;
+            
+            playersGrid.innerHTML = '';
+            
+            teamData.players.forEach(player => {
+                const playerCard = document.createElement('div');
+                playerCard.className = 'player-card';
+                
+                const imageHtml = player.image ? 
+                    `<img src="${player.image}" alt="${player.name}">` : 
+                    '👤';
+                
+                playerCard.innerHTML = `
+                    <div class="player-image">${imageHtml}</div>
+                    <div class="player-number">#${player.number}</div>
+                    <div class="player-name">${player.name}</div>
+                    <div class="player-position">${player.position}</div>
+                `;
+                
+                playerCard.addEventListener('click', function() {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                    playClickSound();
+                });
+                
+                playersGrid.appendChild(playerCard);
+            });
+        }
+
+        function loadLineup() {
+            const formationDisplay = document.getElementById('formationDisplay');
+            if (!formationDisplay || !teamData) return;
+            
+            const formations = {
+                '2-2-1': [
+                    [{ pos: 'GK', line: 'goalkeeper' }],
+                    [{ pos: 'DEF', line: 'defense' }, { pos: 'DEF', line: 'defense' }],
+                    [{ pos: 'MID', line: 'midfield' }, { pos: 'MID', line: 'midfield' }],
+                    [{ pos: 'FWD', line: 'forward' }]
+                ],
+                '2-1-2': [
+                    [{ pos: 'GK', line: 'goalkeeper' }],
+                    [{ pos: 'DEF', line: 'defense' }, { pos: 'DEF', line: 'defense' }],
+                    [{ pos: 'MID', line: 'midfield' }],
+                    [{ pos: 'FWD', line: 'forward' }, { pos: 'FWD', line: 'forward' }]
+                ],
+                '1-3-1': [
+                    [{ pos: 'GK', line: 'goalkeeper' }],
+                    [{ pos: 'DEF', line: 'defense' }],
+                    [{ pos: 'MID', line: 'midfield' }, { pos: 'MID', line: 'midfield' }, { pos: 'MID', line: 'midfield' }],
+                    [{ pos: 'FWD', line: 'forward' }]
+                ],
+                '1-2-2': [
+                    [{ pos: 'GK', line: 'goalkeeper' }],
+                    [{ pos: 'DEF', line: 'defense' }],
+                    [{ pos: 'MID', line: 'midfield' }, { pos: 'MID', line: 'midfield' }],
+                    [{ pos: 'FWD', line: 'forward' }, { pos: 'FWD', line: 'forward' }]
+                ]
+            };
+            
+            const currentFormation = teamData.formation || '2-2-1';
+            const formationStructure = formations[currentFormation];
+            
+            formationDisplay.innerHTML = '';
+            
+            let playerIndex = 0;
+            formationStructure.forEach(line => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'formation-line';
+                
+                line.forEach(position => {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.className = 'formation-player';
+                    
+                    if (teamData.lineup[playerIndex]) {
+                        playerDiv.textContent = teamData.lineup[playerIndex].number;
+                        playerDiv.title = teamData.lineup[playerIndex].name;
+                    } else {
+                        playerDiv.textContent = '?';
+                    }
+                    
+                    lineDiv.appendChild(playerDiv);
+                    playerIndex++;
+                });
+                
+                formationDisplay.appendChild(lineDiv);
+            });
+            
+            const formationTitle = document.querySelector('.formation-title');
+            if (formationTitle) {
+                formationTitle.textContent = `التشكيلة: ${currentFormation}`;
+            }
+        }
+
+        function loadMatchInfo() {
+            if (!teamData) return;
+            
+            const opponentName = document.getElementById('opponentName');
+            const matchDate = document.getElementById('matchDate');
+            const matchTime = document.getElementById('matchTime');
+            const matchVenue = document.getElementById('matchVenue');
+            
+            if (opponentName) opponentName.textContent = teamData.nextMatch.opponent;
+            if (matchTime) matchTime.textContent = teamData.nextMatch.time;
+            if (matchVenue) matchVenue.textContent = teamData.nextMatch.venue;
+            
+            if (matchDate) {
+                const date = new Date(teamData.nextMatch.date);
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                matchDate.textContent = date.toLocaleDateString('ar-SA', options);
+            }
+        }
+
+        function loadResults() {
+            const resultsGrid = document.getElementById('resultsGrid');
+            if (!resultsGrid || !teamData) return;
+            
+            if (!teamData.results || teamData.results.length === 0) {
+                resultsGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">لا توجد نتائج مسجلة بعد</p>';
+                return;
+            }
+            
+            resultsGrid.innerHTML = '';
+            
+            // Show last 5 results
+            const recentResults = teamData.results.slice(-5).reverse();
+            
+            recentResults.forEach(result => {
+                const resultCard = document.createElement('div');
+                resultCard.className = 'result-card';
+                resultCard.style.cssText = `
+                    background: rgba(255, 255, 255, 0.9);
+                    padding: 1rem;
+                    border-radius: 10px;
+                    margin-bottom: 1rem;
+                    border-right: 4px solid ${result.ourScore > result.opponentScore ? 'var(--success-color)' : 
+                                                result.ourScore < result.opponentScore ? 'var(--error-color)' : 'var(--warning-color)'};
+                `;
+                
+                const resultText = result.ourScore > result.opponentScore ? 'فوز' : 
+                                 result.ourScore < result.opponentScore ? 'هزيمة' : 'تعادل';
+                
+                resultCard.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>${result.opponent}</strong>
+                        <span style="color: var(--primary-color); font-weight: bold;">${resultText}</span>
+                    </div>
+                    <div style="font-size: 1.2rem; font-weight: bold; text-align: center; margin: 0.5rem 0;">
+                        ${result.ourScore} - ${result.opponentScore}
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--text-secondary); text-align: center;">
+                        ${new Date(result.date).toLocaleDateString('ar-SA')}
+                    </div>
+                    ${result.notes ? `<div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">${result.notes}</div>` : ''}
+                `;
+                
+                resultsGrid.appendChild(resultCard);
+            });
+        }
+
+        function updateTeamStatusDisplay() {
+            if (!teamData) return;
+            
+            const statusIndicators = document.querySelectorAll('.status-indicator');
+            statusIndicators.forEach(indicator => {
+                const statusDot = indicator.querySelector('.status-dot');
+                const statusText = indicator.querySelector('.status-text');
+                
+                if (statusText) {
+                    statusText.textContent = teamData.status.message;
+                }
+                
+                if (statusDot) {
+                    const statusColors = {
+                        training: 'var(--success-color)',
+                        match: 'var(--error-color)',
+                        rest: 'var(--warning-color)',
+                        travel: 'var(--primary-color)'
+                    };
+                    
+                    statusDot.style.background = statusColors[teamData.status.type] || 'var(--primary-color)';
+                }
+            });
+        }
+
+        function startCountdown() {
+            function updateCountdown() {
+                if (!teamData) return;
+                
+                const now = new Date().getTime();
+                const matchDateTime = new Date(`${teamData.nextMatch.date}T${teamData.nextMatch.time}`).getTime();
+                const distance = matchDateTime - now;
+                
+                if (distance > 0) {
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    
+                    const daysElement = document.getElementById('days');
+                    const hoursElement = document.getElementById('hours');
+                    const minutesElement = document.getElementById('minutes');
+                    
+                    if (daysElement) daysElement.textContent = days;
+                    if (hoursElement) hoursElement.textContent = hours;
+                    if (minutesElement) minutesElement.textContent = minutes;
+                } else {
+                    const countdownElement = document.getElementById('countdown');
+                    if (countdownElement) {
+                        countdownElement.innerHTML = '<div style="color: var(--error-color); font-weight: bold;">🔴 المباراة الآن!</div>';
+                    }
+                }
+            }
+            
+            updateCountdown();
+            setInterval(updateCountdown, 60000);
+        }
+
+        // Coach Interface Functions
+        function updateCoachInterface() {
+            if (!teamData) return;
+            
+            updateStats();
+            loadPlayersTable();
+            loadScheduleForm();
+            loadTeamStatusForm();
+            loadCoachFormation();
+        }
+
+        function updateStats() {
+            if (!teamData) return;
+            
+            const totalPlayersEl = document.getElementById('totalPlayers');
+            const activeLineupEl = document.getElementById('activeLineup');
+            const nextMatchDaysEl = document.getElementById('nextMatchDays');
+            const totalMatchesEl = document.getElementById('totalMatches');
+            
+            if (totalPlayersEl) totalPlayersEl.textContent = teamData.players.length;
+            if (activeLineupEl) activeLineupEl.textContent = teamData.lineup.filter(p => p !== null).length;
+            if (totalMatchesEl) totalMatchesEl.textContent = teamData.results ? teamData.results.length : 0;
+            
+            if (nextMatchDaysEl) {
+                const now = new Date();
+                const matchDate = new Date(teamData.nextMatch.date);
+                const diffTime = matchDate - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                nextMatchDaysEl.textContent = Math.max(0, diffDays);
+            }
+        }
+
+        function loadPlayersTable() {
+            const playersTable = document.getElementById('playersTable');
+            if (!playersTable || !teamData) return;
+            
+            let tableHTML = '<table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">';
+            tableHTML += '<tr style="background: #f5f5f5;"><th style="padding: 0.5rem; border: 1px solid #ddd;">#</th><th style="padding: 0.5rem; border: 1px solid #ddd;">الاسم</th><th style="padding: 0.5rem; border: 1px solid #ddd;">المركز</th><th style="padding: 0.5rem; border: 1px solid #ddd;">الإجراءات</th></tr>';
+            
+            teamData.players.forEach((player, index) => {
+                tableHTML += `<tr>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">#${player.number}</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">${player.name}</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd;">${player.position}</td>
+                    <td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">
+                        <button onclick="editPlayer(${index})" class="btn btn-secondary" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; margin: 0.2rem;">تعديل</button>
+                        <button onclick="deletePlayer(${index})" class="btn btn-danger" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; margin: 0.2rem;">حذف</button>
+                    </td>
+                </tr>`;
+            });
+            
+            tableHTML += '</table>';
+            playersTable.innerHTML = tableHTML;
+        }
+
+        function loadScheduleForm() {
+            if (!teamData) return;
+            
+            const opponent = document.getElementById('opponent');
+            const matchDate = document.getElementById('matchDate');
+            const matchTime = document.getElementById('matchTime');
+            const venue = document.getElementById('venue');
+            const isHome = document.getElementById('isHome');
+            
+            if (opponent) opponent.value = teamData.nextMatch.opponent;
+            if (matchDate) matchDate.value = teamData.nextMatch.date;
+            if (matchTime) matchTime.value = teamData.nextMatch.time;
+            if (venue) venue.value = teamData.nextMatch.venue;
+            if (isHome) isHome.value = teamData.nextMatch.isHome.toString();
+        }
+
+        function loadTeamStatusForm() {
+            if (!teamData) return;
+            
+            const teamStatusSelect = document.getElementById('teamStatusSelect');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            if (teamStatusSelect) teamStatusSelect.value = teamData.status.type;
+            if (statusMessage) statusMessage.value = teamData.status.message;
+            
+            updateCurrentStatusDisplay();
+        }
+
+        function loadCoachFormation() {
+            const formationDisplay = document.getElementById('coachFormationDisplay');
+            if (!formationDisplay || !teamData) return;
+            
+            // Similar to loadLineup but with click handlers for editing
+            const formations = {
+                '2-2-1': [
+                    [{ pos: 'GK', line: 'goalkeeper' }],
+                    [{ pos: 'DEF', line: 'defense' }, { pos: 'DEF', line: 'defense' }],
+                    [{ pos: 'MID', line: 'midfield' }, { pos: 'MID', line: 'midfield' }],
+                    [{ pos: 'FWD', line: 'forward' }]
+                ],
+                '2-1-2': [
+                    [{ pos: 'GK', line: 'goalkeeper' }],
+                    [{ pos: 'DEF', line: 'defense' }, { pos: 'DEF', line: 'defense' }],
+                    [{ pos: 'MID', line: 'midfield' }],
+                    [{ pos: 'FWD', line: 'forward' }, { pos: 'FWD', line: 'forward' }]
+                ],
+                '1-3-1': [
+                    [{ pos: 'GK', line: 'goalkeeper' }],
+                    [{ pos: 'DEF', line: 'defense' }],
+                    [{ pos: 'MID', line: 'midfield' }, { pos: 'MID', line: 'midfield' }, { pos: 'MID', line: 'midfield' }],
+                    [{ pos: 'FWD', line: 'forward' }]
+                ],
+                '1-2-2': [
+                    [{ pos: 'GK', line: 'goalkeeper' }],
+                    [{ pos: 'DEF', line: 'defense' }],
+                    [{ pos: 'MID', line: 'midfield' }, { pos: 'MID', line: 'midfield' }],
+                    [{ pos: 'FWD', line: 'forward' }, { pos: 'FWD', line: 'forward' }]
+                ]
+            };
+            
+            const currentFormation = teamData.formation || '2-2-1';
+            const formationStructure = formations[currentFormation];
+            
+            formationDisplay.innerHTML = '';
+            
+            let playerIndex = 0;
+            formationStructure.forEach(line => {
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'formation-line';
+                
+                line.forEach(position => {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.className = 'formation-player';
+                    playerDiv.style.cursor = 'pointer';
+                    
+                    const currentPlayerIndex = playerIndex;
+                    
+                    if (teamData.lineup[playerIndex]) {
+                        playerDiv.textContent = teamData.lineup[playerIndex].number;
+                        playerDiv.title = teamData.lineup[playerIndex].name;
+                    } else {
+                        playerDiv.textContent = '?';
+                        playerDiv.title = 'انقر لتعيين لاعب';
+                    }
+                    
+                    playerDiv.addEventListener('click', () => selectPlayerForPosition(currentPlayerIndex, position.pos));
+                    
+                    lineDiv.appendChild(playerDiv);
+                    playerIndex++;
+                });
+                
+                formationDisplay.appendChild(lineDiv);
+            });
+            
+            const formationSelect = document.getElementById('formationSelect');
+            if (formationSelect) {
+                formationSelect.value = currentFormation;
+            }
+        }
+
+        // Player Management Functions
+        async function addPlayer() {
+            const number = parseInt(document.getElementById('playerNumber').value);
+            const name = document.getElementById('playerName').value;
+            const position = document.getElementById('playerPosition').value;
+            const imageFile = document.getElementById('playerImage').files[0];
+            
+            try {
+                // Check if jersey number already exists
+                if (teamData.players.some(p => p.number === number)) {
+                    throw new Error('رقم القميص موجود بالفعل!');
+                }
+                
+                let imageUrl = '';
+                
+                // Upload image if provided
+                if (imageFile) {
+                    const imageRef = window.firebase.storageRef(window.firebase.storage, `players/${number}_${Date.now()}`);
+                    await window.firebase.uploadBytes(imageRef, imageFile);
+                    imageUrl = await window.firebase.getDownloadURL(imageRef);
+                }
+                
+                const newPlayer = { number, name, position, image: imageUrl };
+                teamData.players.push(newPlayer);
+                teamData.players.sort((a, b) => a.number - b.number);
+                
+                await saveTeamData();
+                
+                updateCoachInterface();
+                document.getElementById('addPlayerForm').reset();
+                showNotification('تم إضافة اللاعب بنجاح!', 'success');
+                playSuccessSound();
+                
+            } catch (error) {
+                console.error('Error adding player:', error);
+                showNotification('خطأ: ' + error.message, 'error');
+                playErrorSound();
+            }
+        }
+
+        async function editPlayer(index) {
+            const player = teamData.players[index];
+            
+            const newName = prompt('اسم اللاعب الجديد:', player.name);
+            if (newName === null) return;
+            
+            const newPosition = prompt('المركز الجديد:', player.position);
+            if (newPosition === null) return;
+            
+            try {
+                teamData.players[index].name = newName;
+                teamData.players[index].position = newPosition;
+                
+                // Update lineup if player is in it
+                teamData.lineup.forEach(lineupPlayer => {
+                    if (lineupPlayer && lineupPlayer.number === player.number) {
+                        lineupPlayer.name = newName;
+                    }
+                });
+                
+                await saveTeamData();
+                updateCoachInterface();
+                showNotification('تم تحديث بيانات اللاعب بنجاح!', 'success');
+                playSuccessSound();
+                
+            } catch (error) {
+                console.error('Error editing player:', error);
+                showNotification('خطأ في تحديث بيانات اللاعب', 'error');
+                playErrorSound();
+            }
+        }
+
+        async function deletePlayer(index) {
+            if (!confirm('هل أنت متأكد من حذف هذا اللاعب؟')) return;
+            
+            try {
+                const deletedPlayer = teamData.players[index];
+                
+                // Delete image if exists
+                if (deletedPlayer.image) {
+                    try {
+                        const imageRef = window.firebase.storageRef(window.firebase.storage, deletedPlayer.image);
+                        await window.firebase.deleteObject(imageRef);
+                    } catch (error) {
+                        console.log('Image deletion failed:', error);
+                    }
+                }
+                
+                teamData.players.splice(index, 1);
+                
+                // Remove from lineup if present
+                teamData.lineup = teamData.lineup.map(player => 
+                    player && player.number === deletedPlayer.number ? null : player
+                );
+                
+                await saveTeamData();
+                updateCoachInterface();
+                showNotification('تم حذف اللاعب بنجاح!', 'success');
+                playSuccessSound();
+                
+            } catch (error) {
+                console.error('Error deleting player:', error);
+                showNotification('خطأ في حذف اللاعب', 'error');
+                playErrorSound();
+            }
+        }
+
+        // Formation Management
+        function selectPlayerForPosition(slotIndex, position) {
+            const availablePlayers = teamData.players.filter(player => 
+                !teamData.lineup.some(lineupPlayer => lineupPlayer && lineupPlayer.number === player.number) ||
+                (teamData.lineup[slotIndex] && teamData.lineup[slotIndex].number === player.number)
+            );
+            
+            if (availablePlayers.length === 0) {
+                showNotification('لا يوجد لاعبون متاحون!', 'error');
+                return;
+            }
+            
+            const playerOptions = availablePlayers.map(p => `${p.number}: ${p.name} (${p.position})`).join('\n');
+            const playerNumber = prompt(`اختر لاعباً للمركز ${position}:\n${playerOptions}\n\nأدخل رقم القميص (أو 0 للإزالة):`);
+            
+            if (playerNumber === null) return;
+            
+            const number = parseInt(playerNumber);
+            
+            if (number === 0) {
+                teamData.lineup[slotIndex] = null;
+            } else {
+                const player = teamData.players.find(p => p.number === number);
+                if (player && availablePlayers.includes(player)) {
+                    // Remove player from any other position first
+                    teamData.lineup = teamData.lineup.map(lineupPlayer => 
+                        lineupPlayer && lineupPlayer.number === number ? null : lineupPlayer
+                    );
+                    
+                    // Assign to new position
+                    teamData.lineup[slotIndex] = {
+                        number: player.number,
+                        name: player.name,
+                        position: position
+                    };
+                } else {
+                    showNotification('رقم لاعب غير صحيح!', 'error');
+                    return;
+                }
+            }
+            
+            loadCoachFormation();
+            playSuccessSound();
+        }
+
+        async function changeFormation() {
+            const newFormation = document.getElementById('formationSelect').value;
+            
+            try {
+                teamData.formation = newFormation;
+                
+                // Reset lineup when changing formation
+                teamData.lineup = new Array(6).fill(null);
+                
+                await saveTeamData();
+                loadCoachFormation();
+                showNotification(`تم تغيير التشكيلة إلى ${newFormation}`, 'success');
+                playSuccessSound();
+                
+            } catch (error) {
+                console.error('Error changing formation:', error);
+                showNotification('خطأ في تغيير التشكيلة', 'error');
+                playErrorSound();
+            }
+        }
+
+        async function saveLineup() {
+            try {
+                await saveTeamData();
+                showNotification('تم حفظ التشكيلة بنجاح!', 'success');
+                playSuccessSound();
+            } catch (error) {
+                console.error('Error saving lineup:', error);
+                showNotification('خطأ في حفظ التشكيلة', 'error');
+                playErrorSound();
+            }
+        }
+
+        async function resetLineup() {
+            if (!confirm('هل أنت متأكد من إعادة تعيين التشكيلة؟')) return;
+            
+            try {
+                teamData.lineup = new Array(6).fill(null);
+                await saveTeamData();
+                loadCoachFormation();
+                updateStats();
+                showNotification('تم إعادة تعيين التشكيلة بنجاح!', 'success');
+                playSuccessSound();
+            } catch (error) {
+                console.error('Error resetting lineup:', error);
+                showNotification('خطأ في إعادة تعيين التشكيلة', 'error');
+                playErrorSound();
+            }
+        }
+
+        // Schedule Management
+        async function updateSchedule() {
+            const matchData = {
+                opponent: document.getElementById('opponent').value,
+                date: document.getElementById('matchDate').value,
+                time: document.getElementById('matchTime').value,
+                venue: document.getElementById('venue').value,
+                isHome: document.getElementById('isHome').value === 'true'
+            };
+            
+            try {
+                teamData.nextMatch = matchData;
+                await saveTeamData();
+                updateStats();
+                showNotification('تم تحديث جدول المباريات بنجاح!', 'success');
+                playSuccessSound();
+            } catch (error) {
+                console.error('Error updating schedule:', error);
+                showNotification('خطأ في تحديث الجدول', 'error');
+                playErrorSound();
+            }
+        }
+
+        // Results Management
+        async function addResult() {
+            const resultData = {
+                opponent: document.getElementById('resultOpponent').value,
+                ourScore: parseInt(document.getElementById('ourScore').value),
+                opponentScore: parseInt(document.getElementById('opponentScore').value),
+                date: document.getElementById('resultDate').value,
+                notes: document.getElementById('resultNotes').value
+            };
+            
+            try {
+                if (!teamData.results) {
+                    teamData.results = [];
+                }
+                
+                teamData.results.push(resultData);
+                await saveTeamData();
+                updateStats();
+                document.getElementById('resultForm').reset();
+                showNotification('تم تسجيل النتيجة بنجاح!', 'success');
+                playSuccessSound();
+            } catch (error) {
+                console.error('Error adding result:', error);
+                showNotification('خطأ في تسجيل النتيجة', 'error');
+                playErrorSound();
+            }
+        }
+
+        // Team Status Management
+        function updateTeamStatus() {
+            const statusType = document.getElementById('teamStatusSelect').value;
+            let message = document.getElementById('statusMessage').value;
+            
+            if (!message) {
+                const defaultMessages = {
+                    training: 'تدريب اليوم',
+                    match: 'يوم المباراة',
+                    rest: 'يوم راحة',
+                    travel: 'سفر الفريق'
+                };
+                message = defaultMessages[statusType];
+            }
+            
+            teamData.status = { type: statusType, message };
+            document.getElementById('statusMessage').value = message;
+            
+            updateCurrentStatusDisplay();
+        }
+
+        async function saveTeamStatus() {
+            updateTeamStatus();
+            
+            try {
+                await saveTeamData();
+                showNotification('تم تحديث حالة الفريق بنجاح!', 'success');
+                playSuccessSound();
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showNotification('خطأ في تحديث الحالة', 'error');
+                playErrorSound();
+            }
+        }
+
+        function updateCurrentStatusDisplay() {
+            const statusDot = document.getElementById('currentStatusDot');
+            const statusText = document.getElementById('currentStatusText');
+            
+            if (statusText) statusText.textContent = teamData.status.message;
+            
+            if (statusDot) {
+                const statusColors = {
+                    training: 'var(--success-color)',
+                    match: 'var(--error-color)',
+                    rest: 'var(--warning-color)',
+                    travel: 'var(--primary-color)'
+                };
+                
+                statusDot.style.background = statusColors[teamData.status.type] || 'var(--primary-color)';
+            }
+        }
+
+        // Notification Functions
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                console.log('This browser does not support notifications');
+                return;
+            }
+            
+            if (Notification.permission === 'granted') {
+                console.log('Notification permission already granted');
+                return;
+            }
+            
+            if (Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    showNotification('تم تفعيل الإشعارات بنجاح!', 'success');
+                }
+            }
+        }
+
+        function sendNotification() {
+            const title = document.getElementById('notificationTitle').value;
+            const message = document.getElementById('notificationMessage').value;
+            
+            if (!title || !message) {
+                showNotification('يرجى ملء جميع الحقول', 'error');
+                return;
+            }
+            
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐺</text></svg>',
+                    badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🐺</text></svg>'
+                });
+                
+                document.getElementById('notificationTitle').value = '';
+                document.getElementById('notificationMessage').value = '';
+                showNotification('تم إرسال الإشعار بنجاح!', 'success');
+                playSuccessSound();
+            } else {
+                showNotification('يرجى تفعيل الإشعارات أولاً', 'error');
+                playErrorSound();
+            }
+        }
+
+        // Event Listeners Setup
+        function setupEventListeners() {
+            // Add Player Form
+            const addPlayerForm = document.getElementById('addPlayerForm');
+            if (addPlayerForm) {
+                addPlayerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    addPlayer();
+                });
+            }
+            
+            // Schedule Form
+            const scheduleForm = document.getElementById('scheduleForm');
+            if (scheduleForm) {
+                scheduleForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    updateSchedule();
+                });
+            }
+            
+            // Result Form
+            const resultForm = document.getElementById('resultForm');
+            if (resultForm) {
+                resultForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    addResult();
+                });
+            }
+            
+            // Enter key for login
+            const accessCodeInput = document.getElementById('accessCode');
+            if (accessCodeInput) {
+                accessCodeInput.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        checkAccessCode();
+                    }
+                });
+            }
+            
+            // File upload preview
+            const playerImageInput = document.getElementById('playerImage');
+            if (playerImageInput) {
+                playerImageInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const label = this.nextElementSibling;
+                        label.innerHTML = `<span>📷</span><span>تم اختيار: ${file.name}</span>`;
+                    }
+                });
+            }
+        }
+
+        // Sound Effects
+        function playSuccessSound() {
+            if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                const audioContext = new (AudioContext || webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(523, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+        }
+
+        function playErrorSound() {
+            if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                const audioContext = new (AudioContext || webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(300, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(200, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+        }
+
+        function playClickSound() {
+            if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                const audioContext = new (AudioContext || webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.05);
+            }
+        }
+
+        // Utility Functions
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show login section by default
+            showSection('loginSection');
+        });
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
+
